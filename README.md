@@ -26,6 +26,26 @@ The app is a pure frontend — it talks to a separate LMS backend over REST and 
 - **Submission tools** — inspect submissions, override a score, force-recalculate one or all scores, and export a CSV of results.
 - **Live monitoring tab** that polls every 15 seconds for exam violations and warning counts, sortable by score or violations, with a bulk "clear violations" action.
 
+## Exam integrity and monitoring
+
+Integrity handling here is **reporting-only, and admin-side**. The frontend surfaces violation data that the backend records; it does not itself watch the student.
+
+What the app does:
+
+- **Violation review** — the admin monitoring tab polls `GET /admin/violations` every 15 seconds and lists what the backend has recorded. `DELETE /admin/violations` clears them in bulk.
+- **Warning counts** — each user carries a `warning_count`, rendered against a threshold of 3 (`{count} / 3`). Rows and score badges turn red once a student reaches 3.
+- **Sorting and export** — submissions can be sorted by violation count, and the CSV export includes a `Violations` column.
+
+What the app deliberately does not do:
+
+- **No webcam or microphone.** The pre-exam terms screen states plainly that no camera or microphone access is required, and nothing in the app requests either.
+- **No lockdown.** The terms screen tells students that navigating away from the assessment window is *monitored but not restricted*. `Exam.tsx` registers no `visibilitychange` or `blur` handlers and never calls `requestFullscreen()` — leaving the tab is not obstructed, and this frontend does not detect it.
+
+Two loose ends worth knowing about before you build on this:
+
+- `examApi.reportViolation(type, snapshot)` in `src/api.ts` posts to `/exam/violation` and expects `{ warnings, paused }` back. **Nothing in this frontend calls it.** It is the intended hook for client-side detection, wired to the API but not to any event. Any violations the admin tab displays were recorded by the backend, not sent from here.
+- `@tensorflow/tfjs` and `@tensorflow-models/blazeface` are listed as dependencies but are **not imported anywhere in `src/`**. They are leftovers from a face-detection approach that was never wired up, and they are the two heaviest entries in the dependency tree. Remove them unless you intend to finish that work.
+
 ## Tech stack
 
 | Concern | Choice |
