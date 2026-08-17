@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #10b981;
+  --color-brand-hover: #059669;
+  --color-brand-light: #ecfdf5;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+    font-family: 'Outfit', system-ui, sans-serif;
+  }
+}
+
+/* Custom Webkit scrollbar for a premium look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Base custom animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+/* ── KaTeX / Tailwind v4 compatibility fix ──────────────────────────────────
+   Tailwind's preflight sets `svg { display: block }` which breaks KaTeX's
+   inline SVG positioning (square-root symbol, radical line, etc.).
+   These rules are placed OUTSIDE @layer so they always win over @layer base.
+   The !important ensures they beat any utility classes too.
+*/
+
+/* All KaTeX SVGs must be inline (not block) */
+.katex svg {
+  display: inline !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+/* The hide-tail span clips the radical symbol – must keep overflow:hidden */
+.katex .hide-tail {
+  overflow: hidden !important;
+}
+
+/* The radical SVG inside hide-tail must stretch to its natural size */
+.katex .hide-tail svg {
+  display: block !important;
+  max-width: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure paths inside KaTeX SVGs paint with the current text colour */
+.katex svg path {
+  fill: currentColor !important;
+}
